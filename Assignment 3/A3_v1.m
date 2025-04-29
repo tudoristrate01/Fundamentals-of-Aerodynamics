@@ -83,7 +83,7 @@ for k = 1:length(n_blades)
                 if diff > eps
                     m_old = m_total(i,j,k);
                     omega_old = omega_2(i,j,k);
-                    P_old = P_new(i,j,k);
+                    P_old = P_per_rotor;
                 end
             end
         end
@@ -177,16 +177,16 @@ for i = 1:length(n_battery)
     diff_3 = 20;
     eps = 1e-6;
     m_old_3 = m_total_opt_quad;
-    P_old_3 = P_opt_quad;
+    P_old_3 = P_opt_quad/4;
     while diff_3 > eps
         m_battery = n_battery(i)*each_battery_mass;
         cap_battery = n_battery(i)*each_battery_capacity;
-        [~, ~, ~, m_no_fuselage_3, m_fuselage_3, m_total_3(i)] = calc_mass(2, R_opt_quad, P_old_3, P_opt_quad, 2, m_battery);
+        [~, ~, ~, m_no_fuselage_3, m_fuselage_3, m_total_3(i)] = calc_mass(2, R_opt_quad, P_old_3, P_opt_quad/4, 2, m_battery);
         [Power_3(i)] = calculate_Power_Thrust(m_total_3(i), grav_acc, 4, rho, R_opt_quad, needed_c_div_R, 2, Cd_0, omega_opt_quad);
         diff_3 = abs(m_old_3 - m_total_3(i));
         if diff_3 > eps
             m_old_3 = m_total_3(i);
-            P_old_3 = Power_3(i);
+            P_old_3 = Power_3(i)/4;
         end
 
 
@@ -246,7 +246,7 @@ function [m_propeller, m_control, m_computer, m_no_fuselage, m_fuselage, m_total
     m_ing = m_no_fuz_ing + m_fuz_ing;  % kg
 
     m_propeller = 0.07/4 * n_blades * R_new/R_old;  % kg
-    m_control = 0.25/n_rotors * P_new / P_old;  % kg
+    m_control = 0.25/2 * P_new / P_old;  % kg
     m_computer = 1;  % kg
 
     m_no_fuselage = m_computer + m_control + m_propeller + new_batt_mass +2 ;  % kg
